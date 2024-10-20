@@ -1,6 +1,6 @@
 # FMatPix
-A free portable Formula Ocr tool supporting latex and mathml.<br>
-You can use this on your own PC whih just CPU and no need for Internet.
+A free portable Formula Ocr tool supporting latex and mathml based on LatexOcr.<br>
+You can use this on your own PC with just CPU and no need for Internet.
 
 # What's the advantage of this?
 It's free,portable,offline,fast,accurate.<br>
