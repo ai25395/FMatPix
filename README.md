@@ -20,4 +20,5 @@ If you find any other issues，contact me.I'll keep updating this if necessary.
 
 # A cup of coffee for the author
 It is not very easy to develop the project, so if it is helpful to you, please consider offering me a cup of coffee🥤.
-<img src='https://github.com/user-attachments/assets/7ce31ebd-01fe-430b-8d73-d6be98e89d49' width = '100px' height='200px'>
+<br>
+<img src='https://github.com/user-attachments/assets/7ce31ebd-01fe-430b-8d73-d6be98e89d49' width = '100px' height='100px'>
