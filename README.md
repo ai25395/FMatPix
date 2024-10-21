@@ -14,9 +14,9 @@ Here is a presentation:<br>
 ![ocrshow](https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b)
 
 # How to use the code?
-Setup your python env according to the requirements.txt
-Download encoder.onnx and decoder.onnx to the folder "models" from 
-Just run the ocr_gui.py
+Setup your python env according to the requirements.txt <br>
+Download and unzip models.zip to the folder "models" from https://github.com/ai25395/FMatPix/releases <br>
+Just run the ocr_gui.py <br>
 
 # Potential issues
 It will consume much time if you snip a very large image.<br>
