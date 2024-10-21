@@ -160,6 +160,8 @@ class ScreenShot:
 class MainWindow:
     def __init__(self, image_path=None, ocr=None):
         self.root = tk.Tk()
+        # 窗口在最前
+        self.root.attributes("-topmost",1)
         # 固定窗口尺寸
         if getattr(sys, "frozen", None):
             basedir = sys._MEIPASS
