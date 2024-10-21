@@ -1,0 +1,10 @@
+width: 640
+height: 128
+max_width: 1024
+max_height: 512
+min_height: 32
+min_width: 32
+bos_token: 1
+max_seq_len: 1024
+eos_token: 2
+temperature: 0.00001

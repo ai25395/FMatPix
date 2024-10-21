@@ -1,0 +1,10 @@
+onnxruntime
+tokenizers
+numpy
+opencv-python
+Pillow
+PyYAML
+transformers
+easydict
+pyperclip
+latex2mathml
