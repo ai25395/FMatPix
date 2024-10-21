@@ -23,6 +23,7 @@ class Latex_OCR:
             basedir = sys._MEIPASS
         else:
             basedir = os.path.dirname(__file__)
+        encoder_path = os.path.join(basedir, encoder_path)
         decoder_path = os.path.join(basedir, decoder_path)
         tokenizer_path = os.path.join(basedir, tokenizer_path)
         config_path = os.path.join(basedir, config_path)
