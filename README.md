@@ -14,9 +14,10 @@ Here is a presentation:<br>
 ![ocrshow](https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b)
 
 # How to use the code?
-Setup your python env according to the requirements.txt <br>
-Download and unzip models.zip to the folder "models" from https://github.com/ai25395/FMatPix/releases <br>
-Just run the ocr_gui.py <br>
+I've tried my best to simplify the code and preject arch,so it's easy to modify the GUI and intergrate other OCR model to this. <br>
+1.Setup your python env according to the requirements.txt <br>
+2.Download and unzip models.zip to the folder "models" from https://github.com/ai25395/FMatPix/releases <br>
+3.Just run the ocr_gui.py <br>
 
 # Potential issues
 It will consume much time if you snip a very large image.<br>
