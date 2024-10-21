@@ -6,12 +6,17 @@ You can use this on your own PC with just CPU and no need for Internet.
 It's free,portable,offline,fast,accurate.<br>
 So don't hesitate share this with your friends who suffer from paid、user-unfriendly、slow OCR tools.
 
-# How to use
+# How to use the binary?
 Download this from the release page: https://github.com/ai25395/FMatPix/releases <br>
 Just click the snipping button,capture the formula image,and press enter to confirm.Then it'll automatically recognize. <br>
 When the image shown changes,you can click the copy buttons to get latex or mathml to your clipboard.<br>
 Here is a presentation:<br>
 ![ocrshow](https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b)
+
+# How to use the code?
+Setup your python env according to the requirements.txt
+Download encoder.onnx and decoder.onnx to the folder "models" from 
+Just run the ocr_gui.py
 
 # Potential issues
 It will consume much time if you snip a very large image.<br>
