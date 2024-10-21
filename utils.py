@@ -182,7 +182,8 @@ class PreProcess:
 
 
 class OrtInferSession:
-    def __init__(self, model_path: Union[str, Path], num_threads: int = 1):
+    # num_threads越多，识别越快
+    def __init__(self, model_path: Union[str, Path], num_threads: int = 8):
         self.verify_exist(model_path)
 
         self.num_threads = num_threads
