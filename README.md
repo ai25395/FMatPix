@@ -1,4 +1,4 @@
-# FMatPix
+# FMatPix - A Free&Green&Fast&Standalone Formual Ocr Tool
 A free portable Formula Ocr tool supporting latex and mathml based on SimpleLatexOcr.<br>
 You can use this on your own PC with just CPU and no need for Internet.
 
