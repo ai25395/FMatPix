@@ -1,4 +1,4 @@
-import re
+﻿import re
 import time
 import cv2
 import numpy as np
@@ -52,19 +52,29 @@ class Latex_OCR:
         images = [image]
         alignment = "c"
         final_imgs = []
-        for idx, im in enumerate(images):
-            image = cv2.cvtColor(
-                np.array(self.pre_pro.pad(im, divable=1)), cv2.COLOR_BGR2RGB
-            )
-            image = self.pre_pro.letterbox(
-                im=image, new_shape=[self.args["height"], self.args["width"]]
-            )
-            gray_img = self.pre_pro.to_gray(image)
-            normal_img = self.pre_pro.normalize(gray_img).transpose(2, 0, 1)[:1]
-            final_imgs.append(normal_img)
-        x = np.stack(final_imgs, axis=0)
-        ort_input_data = np.array([self.bos_token] * len(x))[:, None]
+        if image==None:
+            print('图像为空')
+            raise Exception
+        print('识别：图像预处理')
+        try:
+            for idx, im in enumerate(images):
+                image = cv2.cvtColor(
+                    np.array(self.pre_pro.pad(im, divable=1)), cv2.COLOR_BGR2RGB
+                )
+                image = self.pre_pro.letterbox(
+                    im=image, new_shape=[self.args["height"], self.args["width"]]
+                )
+                gray_img = self.pre_pro.to_gray(image)
+                normal_img = self.pre_pro.normalize(gray_img).transpose(2, 0, 1)[:1]
+                final_imgs.append(normal_img)
+            x = np.stack(final_imgs, axis=0)
+            ort_input_data = np.array([self.bos_token] * len(x))[:, None]
+        except Exception:
+            print('图像预处理异常')
+            raise Exception
+        print('识别：编码')
         context = self.encoder([x])[0].astype(np.float32)
+        print('识别：解码')
         outputs, confidences = self.decoder(
             ort_input_data,
             self.max_seq_len,
@@ -72,9 +82,9 @@ class Latex_OCR:
             context=context,
             temperature=self.temperature,
         )
+        print('识别：latex后处理')
         formula = [
-            self.post_process("".join(utils.token2str(output, self.tokenizer)).strip())
-            for output in outputs
+            self.post_process("".join(utils.token2str(output, self.tokenizer)).strip()) for output in outputs
         ]
         res = {
             "formula": (
@@ -88,6 +98,7 @@ class Latex_OCR:
             ),
             "confidence": str(round(np.mean(confidences), 2)) + "%",
         }
+        
         res["elapse"] = "{:,}ms".format(int((time.time() - t1) * 1000))
         return res
 

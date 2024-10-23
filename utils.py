@@ -6,8 +6,54 @@ from pathlib import Path
 from typing import List
 from typing import Tuple, Union
 from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
+import os
+import sys
+import codecs
+import re
+
+def remove_spaces_in_tag(text):  
+    # 正则表达式模式：匹配固定的开头</、任意数量的空格、任意字符（非贪婪，作为标签名）、固定的结尾>  
+    # 捕获组1：标签名（可能包含空格）  
+    pattern = r'</\s*(.*?)\s*>'  
+      
+    # 回调函数，用于处理每个匹配项，去除标签名内的空格  
+    def fix_match(match):  
+        # 提取标签名（带空格），并去除空格  
+        tag_name = match.group(1).replace(' ','')
+        # 返回修复后的字符串，注意这里我们重新构造了</和>  
+        return f'</{tag_name}>'  
+      
+    # 使用re.sub和回调函数替换所有匹配项  
+    fixed_text = re.sub(pattern, fix_match, text)  
+      
+    return fixed_text 
+
+def remove_spaces_in_quotes(text):  
+    # 使用正则表达式查找所有双引号括起来的内容  
+    pattern = r'"([^"]*)"'  
+      
+    # 使用 re.sub() 函数进行替换，回调函数用于处理每个匹配项  
+    def replace_match(match):  
+        # match.group(1) 获取双引号之间的内容（即第一个捕获组）  
+        quoted_text = match.group(1)  
+        # 去除引号内内容的空格并返回新的字符串  
+        return '"' + quoted_text.replace(' ', '') + '"'  
+      
+    # 执行替换操作  
+    result = re.sub(pattern, replace_match, text)  
+    return result
+
+def preprocessForMathml(mathml):
+    #处理右下角标和正下角标混淆的问题
+    # 定义正则表达式模式，用来匹配\operatorname*{...}格式的内容
+    pattern = r'\\operatorname\*\{([^}]*)\}'
+    # 使用re.sub()函数进行替换
+    # \1 是一个反向引用，它代表了第一个括号内的匹配内容
+    mathml = re.sub(pattern, r'\\mathop{\1}\\limits', mathml)
+    return mathml
 
 def postprocessForMathml(mathml):
+    # 处理大括号多行公式问题
     if mathml.__contains__(
         r'<mo stretchy="true" fence="true" form="prefix">&#x0007B;</mo>'
     ):
@@ -18,6 +64,73 @@ def postprocessForMathml(mathml):
         mathml = mathml.replace(
             r'<mo stretchy="true" fence="true" form="postfix" />', r"</mfenced>"
         )
+        
+
+    # 处理英文字母异形体问题，此方法不完美，后续待完善
+    if mathml.__contains__('&#x'):
+        # 定义正则表达式模式  
+        pattern = r'<mi>&#x([0-9A-Fa-f]+);</mi>'  
+  
+        # 定义一个函数来检查Unicode码点是否在指定范围内  
+        def is_in_range_bold(code_point_hex):  
+            try:  
+                # 将十六进制字符串转换为整数  
+                code_point = int(code_point_hex, 16)  
+                # 检查是否在指定范围内  
+                return 0x1D400 <= code_point <= 0x1D433  
+            except ValueError:  
+                # 如果转换失败（理论上不应该发生，因为我们已经通过正则表达式匹配了十六进制数字）  
+                return False  
+        # 定义一个函数来检查Unicode码点是否在指定范围内  
+        def is_in_range_doublestruck(code_point_hex):  
+            try:  
+                # 将十六进制字符串转换为整数  
+                code_point = int(code_point_hex, 16)  
+                # 检查是否在指定范围内  
+                return 0x1D538 <= code_point <= 0x1D56B
+            except ValueError:  
+                # 如果转换失败（理论上不应该发生，因为我们已经通过正则表达式匹配了十六进制数字）  
+                return False  
+        def is_in_range_script(code_point_hex):
+            try:  
+                # 将十六进制字符串转换为整数  
+                code_point = int(code_point_hex, 16)  
+                # 检查是否在指定范围内  
+                return 0x1D49C <= code_point <= 0x1D537
+            except ValueError:  
+                # 如果转换失败（理论上不应该发生，因为我们已经通过正则表达式匹配了十六进制数字）  
+                return False
+        symboldict = {}
+        specialUnicodes = [[0x1D400,0x1D433],[0x1D538,0x1D56B],[0x1D49C,0x1D537]]
+        count = 0
+        chcs = {  
+                0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H', 8: 'I', 9: 'J',  
+                10: 'K', 11: 'L', 12: 'M', 13: 'N', 14: 'O', 15: 'P', 16: 'Q', 17: 'R', 18: 'S', 19: 'T',  
+                20: 'U', 21: 'V', 22: 'W', 23: 'X', 24: 'Y', 25: 'Z', 26: 'a', 27: 'b', 28: 'c', 29: 'd',  
+                30: 'e', 31: 'f', 32: 'g', 33: 'h', 34: 'i', 35: 'j', 36: 'k', 37: 'l', 38: 'm', 39: 'n',  
+                40: 'o', 41: 'p', 42: 'q', 43: 'r', 44: 's', 45: 't', 46: 'u', 47: 'v', 48: 'w', 49: 'x',  
+                50: 'y', 51: 'z'  }
+        for su in specialUnicodes:
+            st = su[0]
+            end = su[1]
+            for x in range(st,end+1):
+                symboldict[(hex(x)[2:]).zfill(5).upper()] = chcs[count%52]
+                count += 1
+        # 定义替换函数  
+        def conditional_replacement(match):  
+            hex_value = match.group(1)  # 获取第一个捕获组的内容  
+            if is_in_range_bold(hex_value):  
+                # 如果在范围内，进行替换  
+                return "<mstyle mathvariant='bold' mathsize='normal'><mi>" + symboldict[hex_value] + "</mi></mstyle>"
+            elif is_in_range_doublestruck(hex_value):
+                return "<mi mathvariant='double-struck'>" + symboldict[hex_value]+"</mi>"
+            elif is_in_range_script(hex_value):
+                return "<mi mathvariant='script'>" + symboldict[hex_value]+"</mi>"
+            else:  
+                # 如果不在范围内，不替换（返回原始匹配项）  
+                return match.group(0)  
+        mathml = re.sub(pattern, conditional_replacement, mathml)
+
     return mathml
 
 def token2str(tokens, tokenizer) -> list:
@@ -182,8 +295,7 @@ class PreProcess:
 
 
 class OrtInferSession:
-    # num_threads越多，识别越快
-    def __init__(self, model_path: Union[str, Path], num_threads: int = 8):
+    def __init__(self, model_path: Union[str, Path], num_threads: int = 6):
         self.verify_exist(model_path)
 
         self.num_threads = num_threads
