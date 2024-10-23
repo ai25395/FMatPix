@@ -11,7 +11,10 @@ Download this from the release page: https://github.com/ai25395/FMatPix/releases
 Just click the snipping button,capture the formula image,and press enter to confirm.Then it'll automatically recognize. <br>
 When the image shown changes,you can click the copy buttons to get latex or mathml to your clipboard.<br>
 Here is a presentation:<br>
+v1.0
 ![ocrshow](https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b)
+v1.1
+![ocrshow](https://github.com/user-attachments/assets/32d1b4be-b983-46eb-a99d-fdc12cffe318)
 
 # How to use the code?
 1.Setup your python env according to the requirements.txt <br>
