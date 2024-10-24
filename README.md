@@ -12,7 +12,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 For using details you can check the release page or the help page in the software
 ## v1.0
 ![ocrshow](https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b)
-## v1.1
+## v1.1 v1.2
 ![ocrshow](https://github.com/user-attachments/assets/32d1b4be-b983-46eb-a99d-fdc12cffe318)
 
 # How to use the code?
