@@ -16,8 +16,9 @@ For using details you can check the release page or the help page in the softwar
 
 # How to use the code?
 1.Setup your python env according to the requirements.txt <br>
-2.Download and unzip models.zip to the folder "models" from https://github.com/ai25395/FMatPix/releases <br>
-3.Just run the ocr_gui.py <br>
+2.Download and unzip models_texify.zip to the folder "models" from https://github.com/ai25395/FMatPix/releases <br>
+3.Download node(>=v20) and put the node.exe into the folder "texmml" <br>
+4.Just run the ocr_gui.py <br>
 I've tried my best to simplify the code and preject,so it's easy to modify the GUI and intergrate other OCR model to this. <br>
 
 # Potential issues
