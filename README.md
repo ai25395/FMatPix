@@ -17,7 +17,7 @@ For using details you can check the release page or the help page in the softwar
 # How to use the code?
 1.Setup your python env according to the requirements.txt <br>
 2.Create a folder named "models", download and unzip models_texify.zip to the folder "models" from release page v1.3<br>
-3.Create a folder named "texmml", download and unzip texmml.zip to the folder "models" from release page v1.2<br>
+3.Create a folder named "texmml", download and unzip texmml.zip to the folder "texmml" from release page v1.2<br>
 4.Just run the ocr_gui.py <br>
 I've tried my best to simplify the code and preject,so it's easy to modify the GUI and intergrate other OCR model to this. <br>
 
