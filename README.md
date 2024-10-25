@@ -1,5 +1,5 @@
 # FMatPix - A Free-Fast-NoDep-Offline Formula Ocr Tool
-A free portable Formula Ocr tool supporting latex and mathml based on SimpleLatexOcr.<br>
+A free portable Formula Ocr tool supporting latex and mathml based on Texify.<br>
 You can use this on your own PC with just CPU and no need for Internet.
 
 # What's the advantage of this?
