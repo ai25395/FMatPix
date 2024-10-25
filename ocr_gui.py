@@ -1,11 +1,11 @@
-﻿import queue
+﻿from ctypes import util
+import queue
 from win32 import win32api, win32gui, win32print
 from win32.lib import win32con
 from win32.win32api import GetSystemMetrics
 import tkinter as tk
 from PIL import ImageGrab, Image
 import pyperclip
-import latex2mathml.converter
 import models
 import utils
 from pynput import keyboard
@@ -13,7 +13,7 @@ import sys
 import os
 import threading
 import queue
-
+import torch
 
 def get_real_resolution():
     hDC = win32gui.GetDC(0)
@@ -33,6 +33,7 @@ real_resolution = get_real_resolution()
 screen_size = get_screen_size()
 screen_scale_rate = round(real_resolution[0] / screen_size[0], 2)
 capturedImg = None
+
 
 
 class Box:
@@ -148,7 +149,7 @@ class ScreenShot:
 
 #FMatPix界面
 class MainWindow:
-    def __init__(self, image_path=None, ocr=None):
+    def __init__(self, image_path=None, ocr=None, detector=None):
         self.root = tk.Tk()
         #默认窗口最前，如果最小化，则取消窗口最前；最大化，则恢复窗口最前。
         self.root.attributes("-topmost",1)
@@ -161,8 +162,9 @@ class MainWindow:
         else:
             basedir = os.path.dirname(__file__)
         self.root.iconbitmap(os.path.join(basedir, "models/guiicon.ico"))
-        
+        self.timeout = 49
         self.ocr = ocr
+        self.detector = detector
         self.mathtypetext = ""
         self.latextext = ""
         self.history = [[],[]]
@@ -171,7 +173,7 @@ class MainWindow:
         if image_path is None:
             raise ValueError("Image path must be provided.")
 
-        self.root.title("Free Formula OCR for Latex and MathML v1.1 -~- Ltc")
+        self.root.title("Free Formula OCR for Latex and MathML v1.3 -~- Ltc")
         self.root.geometry("500x70")
         
         #控制同时只能有一个Screen
@@ -272,14 +274,17 @@ class MainWindow:
     def cal(self,img):
         try:
             print('识别')
-            result = self.ocr.predict(img)
-            latextext = result["formula"]
-            print('前处理')
-            tmp1 = utils.preprocessForMathml(latextext)
+            imgs,alignment = self.detector.detect_image(img)
+            results = []
+            print('检测公式数量')
+            print(len(imgs))
+            for img in imgs:
+                results.append(self.ocr.predict(img)[0])
+            latextext = utils.gatherOcrResults(results,alignment)
             print('转换')
-            tmp2 = latex2mathml.converter.convert(tmp1)
+            tmp1 = utils.InvokeTexmml(latextext)
             print('后处理')
-            mathtypetext = utils.postprocessForMathml(tmp2)
+            mathtypetext = utils.postprocessForMathml(tmp1)
             return (latextext,mathtypetext)
         except Exception as e:
             print("核心识别函数出错")
@@ -336,8 +341,7 @@ class MainWindow:
             print('开始计算')
             global capturedImg
             if capturedImg:
-                print(capturedImg.size)
-                self.runCalWithTimeout(self.cal,capturedImg,8)
+                self.runCalWithTimeout(self.cal,capturedImg,self.timeout)
             else:
                 print('image==None')
             self.hasScreen = False
@@ -371,8 +375,9 @@ if __name__ == "__main__":
         basedir = sys._MEIPASS
     else:
         basedir = os.path.dirname(__file__)
-    model = models.Latex_OCR()
-    window = MainWindow(os.path.join(basedir, "models/GuiStartImg.png"), model)
+    detector = utils.PreProcess(os.path.join(basedir, "models/best.onnx"))
+    model = models.OcrModel()
+    window = MainWindow(os.path.join(basedir, "models/GuiStartImg.png"), model, detector)
     #消息队列，用于键盘监听线程和主程序通信
     message_queue = queue.Queue()
 
@@ -395,7 +400,7 @@ if __name__ == "__main__":
                 print('message')
                 window.on_snip()
         except queue.Empty:
-            pass#
+            pass
         window.root.after(200, checkqueue)
     
     #启动键盘监听线程
