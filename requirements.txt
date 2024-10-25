@@ -10,3 +10,4 @@ pyperclip
 latex2mathml
 pywin32
 pynput
+torch
