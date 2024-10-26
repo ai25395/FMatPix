@@ -24,6 +24,8 @@ I've tried my best to simplify the code and preject,so it's easy to modify the G
 # Potential issues
 It will consume much time if you snip a very large image.<br>
 Some format errors in MathML because it's tranformed from latex.I've tried to solve most of them.<br>
+Sometimes, there can be formatting issues with curly braces <br>
+Some letters or symbols cannot be recognized because not in the token vocabulary or training set.
 If you find any other issues，contact me.I'll keep updating this if necessary.<br>
 
 # A cup of coffee for the author
