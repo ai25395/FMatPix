@@ -13,14 +13,14 @@ class OcrModel:
             basedir = os.path.dirname(__file__)
         modelPath = os.path.join(basedir,"models")
         self.model = VisionEncoderDecoderModel.from_pretrained(modelPath)
-        #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        device = 'cpu'
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        #device = 'cpu'
         self.model.to(device)
         self.processor = load_processor(modelPath)
         print('ocr model init')
     def predict(self,img):
         print('ocr model pred')
-        res = batch_inference([img],self.model,self.processor)
+        res = batch_inference(img,self.model,self.processor)
         return res
 
 

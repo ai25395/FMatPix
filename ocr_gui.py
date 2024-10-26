@@ -1,5 +1,6 @@
 ﻿from ctypes import util
 import queue
+from transformers.modeling_utils import safe_load_file
 from win32 import win32api, win32gui, win32print
 from win32.lib import win32con
 from win32.win32api import GetSystemMetrics
@@ -13,8 +14,7 @@ import sys
 import os
 import threading
 import queue
-import torch
-
+import time
 def get_real_resolution():
     hDC = win32gui.GetDC(0)
     # 横向分辨率
@@ -162,7 +162,7 @@ class MainWindow:
         else:
             basedir = os.path.dirname(__file__)
         self.root.iconbitmap(os.path.join(basedir, "models/guiicon.ico"))
-        self.timeout = 49
+        self.timeout = 60
         self.ocr = ocr
         self.detector = detector
         self.mathtypetext = ""
@@ -275,11 +275,9 @@ class MainWindow:
         try:
             print('识别')
             imgs,alignment = self.detector.detect_image(img)
-            results = []
             print('检测公式数量')
             print(len(imgs))
-            for img in imgs:
-                results.append(self.ocr.predict(img)[0])
+            results = self.ocr.predict(imgs)
             latextext = utils.gatherOcrResults(results,alignment)
             print('转换')
             tmp1 = utils.InvokeTexmml(latextext)
@@ -341,7 +339,9 @@ class MainWindow:
             print('开始计算')
             global capturedImg
             if capturedImg:
+                t1 = time.time()
                 self.runCalWithTimeout(self.cal,capturedImg,self.timeout)
+                print('检测+识别共用时：'+ str(time.time()-t1)+ 's')
             else:
                 print('image==None')
             self.hasScreen = False

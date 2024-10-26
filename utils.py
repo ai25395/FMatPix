@@ -109,13 +109,17 @@ def determine_alignment(boxes, threshold=5):
         # 计算左边界和右边界的最大和最小值，判断是否在阈值范围内
         left_range = max(left_edges) - min(left_edges)
         right_range = max(right_edges) - min(right_edges)
-
-        if left_range <= threshold:
-            return 'l'
-        elif right_range <= threshold:
-            return 'r'
-        else:
+        centers = []
+        for i in range(len(left_edges)):
+            centers.append((left_edges[i]+right_edges[i])/2)
+        center_range = max(centers) - min(centers)
+        if abs(left_range-right_range)<center_range:
             return 'c'
+        else:
+            if left_range<right_range:
+                return 'l'
+            else:
+                return 'r'
     except:
         return "c"
     
