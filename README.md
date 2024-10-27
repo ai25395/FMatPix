@@ -4,6 +4,7 @@ You can use this on your own PC with just CPU and no need for Internet.
 
 # What's the advantage of this?
 It's free,portable,offline,fast,accurate.<br>
+免费、便携、离线、快速、准确 <br>
 So don't hesitate share this with your friends who suffer from paid、user-unfriendly、slow OCR tools.
 
 # How to get the binary and use?
