@@ -9,7 +9,10 @@ So don't hesitate share this with your friends who suffer from paid、user-unfri
 # How to get the binary and use?
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
 For using details you can check the release page or the help page in the software
-## v1.1 v1.2 v1.3
+## v1.3
+![ocrshow3](https://github.com/user-attachments/assets/74934032-b759-4a10-8b70-9d016df97035)
+<img src='https://github.com/user-attachments/assets/74934032-b759-4a10-8b70-9d016df97035' width = '500px' height='300px'>
+## v1.1 v1.2
 ![ocrshow](https://github.com/user-attachments/assets/32d1b4be-b983-46eb-a99d-fdc12cffe318)
 ## v1.0
 ![ocrshow](https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b)
