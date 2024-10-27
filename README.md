@@ -10,11 +10,11 @@ So don't hesitate share this with your friends who suffer from paid、user-unfri
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
 For using details you can check the release page or the help page in the software
 ## v1.3
-<img src='https://github.com/user-attachments/assets/74934032-b759-4a10-8b70-9d016df97035' width = '750px' height='450px'>
+<img src='https://github.com/user-attachments/assets/74934032-b759-4a10-8b70-9d016df97035' width = '750px' height='450px'> <br>
 ## v1.1 v1.2
-<img src='https://github.com/user-attachments/assets/32d1b4be-b983-46eb-a99d-fdc12cffe318' width = '750px' height='450px'>
+<img src='https://github.com/user-attachments/assets/32d1b4be-b983-46eb-a99d-fdc12cffe318' width = '750px' height='450px'><br>
 ## v1.0
-<img src='https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b' width = '750px' height='450px'>
+<img src='https://github.com/user-attachments/assets/b6c1032e-421e-4f3c-8fb9-d734cfc0b78b' width = '750px' height='450px'><br>
 
 # How to use the code?
 1.Setup your python env according to the requirements.txt <br>
