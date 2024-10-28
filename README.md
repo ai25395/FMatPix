@@ -5,7 +5,9 @@ You can use this on your own PC with just CPU and no need for Internet.
 # What's the advantage of this?
 It's free,portable,offline,fast,accurate.<br>
 免费、便携、离线、快速、准确 <br>
-So don't hesitate share this with your friends who suffer from paid、user-unfriendly、slow OCR tools.
+So don't hesitate share this with your friends who suffer from paid、user-unfriendly、slow OCR tools.<br>
+If you want to get the latest release or propose some suggestions,join this QQ group<br>
+<img src='https://github.com/user-attachments/assets/d401c5be-01a0-45c8-8048-819e6f5a2f31' width = '100px' height='100px'>
 
 # How to get the binary and use?
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
