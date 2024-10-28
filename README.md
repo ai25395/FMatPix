@@ -9,6 +9,7 @@ So don't hesitate share this with your friends who suffer from paid、user-unfri
 
 # How to get the binary and use?
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
+### Don't forget to give me a star it's very important for me！别忘了给我点个星，这对我真的很重要！<br>
 For using details you can check the release page or the help page in the software
 ## v1.3
 <img src='https://github.com/user-attachments/assets/74934032-b759-4a10-8b70-9d016df97035' width = '750px' height='450px'> <br>
