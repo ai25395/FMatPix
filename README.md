@@ -38,9 +38,9 @@ I've tried my best to simplify the code and preject,so it's easy to modify the G
 If you find any other issues，contact me.I'll keep updating this if necessary.
 
 # Fequently Asked Questions
-1、Support for mac<br>
-I'm trying to find a mac to develop and test first but there is even no a Mac I can borrow.So I'll try a cloud Mac then.<br>
-And this won't take a long time because most of codes don't need to be adjusted.<br>
+1、Support for Mac<br>
+I'm trying to find a Mac to develop and test first but there is even no a Mac I can borrow.So I'll try a cloud Mac then.<br>
+This won't take a long time because most of codes don't need to be adjusted.<br>
 2、Support for 2 monitors<br>
 I've had some tests on this feature and found it a annoying problem which contains many special situations.I'll try to use the snip tool<br>
 provided by Windows to sovle this problem more easily.Or reference some other projects?<br>
