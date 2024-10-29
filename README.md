@@ -13,7 +13,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 For using details you can check the release page or the help page in the software
 
 ## v1.4
-<img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='450px'> <br>
+<img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='400px'> <br>
 ## v1.3
 <img src='https://github.com/user-attachments/assets/74934032-b759-4a10-8b70-9d016df97035' width = '750px' height='450px'> <br>
 ## v1.1 v1.2
