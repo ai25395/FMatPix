@@ -47,7 +47,7 @@ provided by Windows to sovle this problem more easily.Or reference some other pr
 3、Self-defined Shortcut for Snipping<br>
 I have set Alt+Q in the v1.4 for snipping which will satify most people.And probably I wont't add a self-define function,<br>
 because it'll introduce a config file which will make FMatPix.exe -> FMatPix.exe + xxx.xml. I mean there'll be an additional file.<br>
-Forgive my OCR please.
+Forgive my OCD please.
 
 # A cup of coffee for the author
 It is not very easy to develop the project, so if it is helpful to you, please consider offering me a cup of coffee🥤.<br>
