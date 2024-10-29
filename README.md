@@ -12,7 +12,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 ### Don't forget to give me a star it's very important for me！别忘了给我点个星，这对我真的很重要！<br>
 For using details you can check the release page or the help page in the software
 
-## v1.4
+## v1.4  The latest release 2024/10/29
 ### Batch Ocr & New History
 <img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='400px'> <br>
 ## v1.3
