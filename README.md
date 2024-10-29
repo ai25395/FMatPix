@@ -30,11 +30,23 @@ For using details you can check the release page or the help page in the softwar
 I've tried my best to simplify the code and preject,so it's easy to modify the GUI and intergrate other OCR model to this. <br>
 
 # Potential issues
-It will consume much time if you snip a very large image.<br>
-Some format errors in MathML because it's tranformed from latex.I've tried to solve most of them.<br>
-Sometimes, there can be formatting issues with curly braces <br>
-Some letters or symbols cannot be recognized because not in the token vocabulary or training set.<br>
+1、It will consume much time if you snip a very large image.<br>
+2、Some format errors in MathML because it's tranformed from latex.I've tried to solve most of them.I suggest copying latex to mathtype directly<br>
+3、Sometimes, there can be formatting issues with curly braces.<br>
+4、Some letters or symbols cannot be recognized because not or rarely in the token vocabulary or training set.<br>
+5、If you paste a very long formula to mathtype, it will report a error.So please avoid that.
 If you find any other issues，contact me.I'll keep updating this if necessary.
+
+# Fequently Asked Questions
+## 1、Support for mac
+I'm trying to find a mac to develop and test first but there is even no a Mac I can borrow.So I'll try a cloud Mac then.
+And this won't take a long time because most of codes don't need to be adjusted.
+## 2、Support for 2 monitors
+I've had some tests on this feature and found it a annoying problem which contains many special situations.I'll try to use the snip tool
+provided by Windows to sovle this problem more easily.Or reference some other projects?
+## 3、Self-defined Shortcut for Snipping
+I have set Alt+Q in the v1.4 for snipping which will satify most people.And probably I wont't add a self-define function,
+because it'll introduce a config file which will make FMatPix.exe -> FMatPix.exe + xxx.xml. I mean there'll be an additional file.
 
 # A cup of coffee for the author
 It is not very easy to develop the project, so if it is helpful to you, please consider offering me a cup of coffee🥤.<br>
