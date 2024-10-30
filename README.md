@@ -7,7 +7,11 @@ It's free,portable,offline,fast,accurate.<br>
 免费、便携、离线、快速、准确 <br>
 So don't hesitate share this with your friends who suffer from paid、user-unfriendly、slow OCR tools.<br>
 
-# How to get the binary and use?
+# Notice
+In the next version, Support for Mac and Double-Screen will come !!! <br>
+So don't hesitate, star and follow me.New version is coming soon!
+
+# How to get the .exe and use?
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
 ### Don't forget to give me a star it's very important for me！别忘了给我点个星，这对我真的很重要！<br>
 For using details you can check the release page or the help page in the software
