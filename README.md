@@ -7,11 +7,18 @@ It's free,portable,offline,fast,accurate.<br>
 免费、便携、离线、快速、准确 <br>
 So don't hesitate share this with your friends who suffer from paid、user-unfriendly、slow OCR tools.<br>
 
-# How to get the .exe and use?
+# How to get the .exe?
 从这个网址选择版本下载，注意版本说明里提供了迅雷网盘链接：https://github.com/ai25395/FMatPix/releases <br>
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
 ### Don't forget to give me a star it's very important for me！别忘了给我点个星，这对我真的很重要！<br>
-For using details you can check the release page or the help page in the software
+
+# Usage
+1、Alt+Q to snip and then the recognition will starts automatically.<br>
+2、Click 'Copy Latex' or 'Copy MathMl' to copy the recognition result.<br>
+3、Double click  'Copy Latex' or 'Copy MathMl' to enable result-auto-copy mode.<br>
+4、'History' shows the history snipped pictures of formulas.Click the picture to copy the result.<br>
+5、Double click 'Batch Ocr' to enable batch-ocr mode.In this mode, recognition won't start after <br>
+you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.
 
 ## v1.4  The latest release 2024/10/29
 ### Batch Ocr & New History
