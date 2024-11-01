@@ -21,7 +21,8 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.
 
 ## v1.6
-<img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '750px' height='400px'> <br>
+### Page Ocr
+<img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '750px' height='450px'> <br>
 ## v1.5 v1.4
 ### Batch Ocr & New History
 <img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='400px'> <br>
