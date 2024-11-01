@@ -20,7 +20,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 5、Double click 'Batch Ocr' to enable batch-ocr mode.In this mode, recognition won't start after <br>
 you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.
 
-##v1.6
+## v1.6
 <img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '600px' height='320px'> <br>
 ## v1.5 v1.4
 ### Batch Ocr & New History
