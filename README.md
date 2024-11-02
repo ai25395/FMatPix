@@ -18,8 +18,9 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 3、Double click  'Copy Latex' or 'Copy MathMl' to enable result-auto-copy mode.<br>
 4、'History' shows the history snipped pictures of formulas.Click the picture to copy the result.<br>
 5、Double click 'Batch Ocr' to enable batch-ocr mode.In this mode, recognition won't start after <br>
-you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.
-
+you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.<br>
+6、Double click 'Page Ocr' to enable page-ocr mode.In this mode,after capturing a large image, <br>
+all formulas in it will be box selection and you can copy a formula by clicking its box.<br>
 ## v1.6
 ### Page Ocr
 <img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '750px' height='450px'> <br>
