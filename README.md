@@ -13,11 +13,9 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 ### Don't forget to give me a star it's very important for me！别忘了给我点个星，这对我真的很重要！<br>
 
 # Version features
-## v1.6 v1.7
-### Page Ocr
+## v1.6 v1.7  Page Ocr
 <img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '750px' height='450px'> <br>
-## v1.5 v1.4
-### Batch Ocr & New History
+## v1.5 v1.4   Batch Ocr & New History
 <img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='400px'> <br>
 
 # How to use the software?
