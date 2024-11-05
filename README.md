@@ -12,7 +12,15 @@ So don't hesitate share this with your friends who suffer from paid、user-unfri
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
 ### Don't forget to give me a star it's very important for me！别忘了给我点个星，这对我真的很重要！<br>
 
-# Usage
+# Version features
+## v1.6 v1.7
+### Page Ocr
+<img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '750px' height='450px'> <br>
+## v1.5 v1.4
+### Batch Ocr & New History
+<img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='400px'> <br>
+
+# How to use the software?
 1、Alt+Q to snip and then the recognition will starts automatically.<br>
 2、Click 'Copy Latex' or 'Copy MathMl' to copy the recognition result.<br>
 3、Double click  'Copy Latex' or 'Copy MathMl' to enable result-auto-copy mode.<br>
@@ -21,15 +29,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.<br>
 6、Double click 'Page Ocr' to enable page-ocr mode.In this mode,after capturing a large image, <br>
 all formulas in it will be box selection and you can copy a formula by clicking its box.<br>
-
-You can see this video for more usage details: https://www.bilibili.com/video/BV137SdYCEd6
-## v1.6 v1.7
-### Page Ocr
-<img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '750px' height='450px'> <br>
-## v1.5 v1.4
-### Batch Ocr & New History
-<img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='400px'> <br>
-
+You can see this video for some usage details: https://www.bilibili.com/video/BV137SdYCEd6 <br>
 
 # How to use the code?
 1.Setup your python env according to the requirements.txt <br>
