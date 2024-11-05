@@ -1,4 +1,4 @@
-﻿from typing import Dict, Union, Optional, List
+from typing import Dict, Union, Optional, List
 from transformers import DonutImageProcessor, DonutProcessor, AutoImageProcessor
 from transformers.image_processing_utils import get_size_dict, BatchFeature
 from transformers.image_transforms import pad
