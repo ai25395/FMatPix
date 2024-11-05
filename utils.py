@@ -1,4 +1,4 @@
-﻿import re
+import re
 from ftfy import fix_text
 import subprocess
 import os
@@ -15,7 +15,7 @@ def InvokeTexmml(latextext):
     else:
         basedir = os.path.dirname(__file__)
             
-    nodePath = os.path.join(basedir, 'texmml/node.exe')
+    nodePath = os.path.join(basedir, 'texmml/node')
     jsscriptPath = os.path.join(basedir, 'texmml/tex2mml.js')
     resultPath = os.path.join(basedir,'texmml/result.txt')
     command = [nodePath, jsscriptPath, latextext, resultPath]
@@ -78,7 +78,7 @@ def gatherOcrResults(result,alignment):
             gathered += r + r'\\'
         gathered = gathered[:-2] + r'\end{array}'
         return gathered
-    
+
 def remove_labels(text):
     pattern = r'\\label\{[^}]*\}'
     text = re.sub(pattern, '', text)
@@ -88,10 +88,12 @@ def remove_labels(text):
     text = re.sub(pageref_pattern, '', text)
     return text
 
+
 def postprocess(text):
     text = fix_text(text)
     text = remove_labels(text)
-    text = text.replace('$$','')
+    pattern = r'(?<!\\)\$'
+    text = re.sub(pattern, '', text)
     return text
 
 def determine_alignment(boxes, threshold=5):
@@ -122,6 +124,7 @@ def determine_alignment(boxes, threshold=5):
                 return 'r'
     except:
         return "c"
+
     
 class OrtInferSession:
     def __init__(self, model_path, num_threads: int = 6):
@@ -187,6 +190,7 @@ class PreProcess:
         self.mean = np.array([0.7931, 0.7931, 0.7931]).astype(np.float32)
         self.std = np.array([0.1738, 0.1738, 0.1738]).astype(np.float32)
         self.detecter = OrtInferSession(detect_path)
+        self.whRation = 2.5
     def detect_image(self, input_image):
         try:
             source_image = input_image
@@ -221,16 +225,17 @@ class PreProcess:
             result_boxes = cv2.dnn.NMSBoxes(boxes, scores, 0.45, 0.45, 0.5)
             sorted_result_boxes = sorted(result_boxes, key=lambda i: boxes[i][1] * scale)  # 根据NMS结果中的框的y坐标进行排序
             images = []
+            reboxes = []
             for i in range(len(sorted_result_boxes)):
                 index = sorted_result_boxes[i]
                 box = boxes[index]
                 x, y, w, h = round(box[0] * scale), round(box[1] * scale), round(box[2] * scale), round(box[3] * scale)
                 cropped_image = source_image.crop((x, y, x + w, y + h))
-                images.append(cropped_image)
+                if w/h>self.whRation:
+                    images.append(cropped_image)
+                    reboxes.append([x,y,w,h])
             alignment = determine_alignment(boxes, threshold=5)
         except Exception as e:
             print('检测公式区域错误')
             print(e)
-        return images, alignment
-
-    
+        return images,reboxes, alignment
