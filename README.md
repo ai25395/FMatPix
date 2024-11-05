@@ -21,7 +21,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.<br>
 6、Double click 'Page Ocr' to enable page-ocr mode.In this mode,after capturing a large image, <br>
 all formulas in it will be box selection and you can copy a formula by clicking its box.<br>
-## v1.6
+## v1.6 v1.7
 ### Page Ocr
 <img src='https://github.com/user-attachments/assets/7966e020-7296-45df-9ac9-c244d2cf5f96' width = '750px' height='450px'> <br>
 ## v1.5 v1.4
