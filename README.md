@@ -21,7 +21,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 # How to use the software?
 1、Alt+Q to snip(no matter in single/batch/page mode) and then the recognition will start.<br>
 2、Click 'Copy Latex' or 'Copy MathMl' to copy the recognition result.<br>
-3、Double click  'Copy Latex' or 'Copy MathMl' to enable result-auto-copy mode.<br>
+3、Double click  'Copy Latex' or 'Copy MathMl' to enable result-auto-copy.<br>
 4、'History' shows the history snipped pictures of formulas.Click the picture to copy the result.<br>
 5、Double click 'Batch Ocr' to enable batch-ocr mode.In this mode, recognition won't start after <br>
 you capture an image.By clicking the 'Batch Ocr',all the captured images will be recognized one time.<br>
