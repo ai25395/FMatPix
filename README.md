@@ -48,7 +48,7 @@ If you find any other issues，contact me.I'll keep updating this if necessary.
 1、Support for Mac<br>
 I'm trying to find a Mac to develop and test first but there is even no a Mac I can borrow.So I'll try a cloud Mac then.<br>
 2、Self-defined Shortcut for Snipping<br>
-I have set Alt+Q in the v1.4 for snipping which will satify most people.And probably I wont't add a self-define function,<br>
+I have set Alt+Q in the v1.4 for snipping which will satify most people.And probably I wont't add a self-define function,
 because it'll introduce a config file which will make FMatPix.exe -> FMatPix.exe + xxx.xml. I mean there'll be an additional file.<br>
 Forgive my OCD please.<br>
 3、Support for double monitors<br>
