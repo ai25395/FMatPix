@@ -19,7 +19,7 @@ Download the software FMatPix.exe from the release page: https://github.com/ai25
 <img src='https://github.com/user-attachments/assets/019a8292-375f-4386-a426-ac52be159359' width = '750px' height='400px'> <br>
 
 # How to use the software?
-1、Alt+Q to snip and then the recognition will starts automatically.<br>
+1、Alt+Q to snip(no matter in single/batch/page mode) and then the recognition will start.<br>
 2、Click 'Copy Latex' or 'Copy MathMl' to copy the recognition result.<br>
 3、Double click  'Copy Latex' or 'Copy MathMl' to enable result-auto-copy mode.<br>
 4、'History' shows the history snipped pictures of formulas.Click the picture to copy the result.<br>
