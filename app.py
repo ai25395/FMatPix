@@ -8,16 +8,66 @@ import random
 import base64
 import sqlite3
 import uuid
+import re
 from io import BytesIO
 from PIL import Image
 import pystray
 from threading import Thread
+
+# 导入相关模块
+try:
+    import torch
+    from utils import batch_inference
+    HAS_LOCAL_MODEL = True
+except ImportError:
+    HAS_LOCAL_MODEL = False
+    print("警告: 未能导入本地ONNX模型模块，本地模式将不可用")
 
 app = Flask(__name__)
 app.secret_key = 'fixed_secret_key_for_persistence'  # 使用固定密钥保证session持久化
 
 # 定义数据库路径
 DB_PATH = 'formula_history.db'
+
+# 全局变量，用于存储ONNX模型
+ocr_model = None
+MODEL_INITIALIZED = False
+
+def init_onnx_model():
+    """初始化ONNX模型"""
+    global ocr_model
+    global MODEL_INITIALIZED
+    from models import OcrModel
+
+    # 如果模型已经初始化，直接返回成功
+    if MODEL_INITIALIZED:
+        return True
+    
+    if not HAS_LOCAL_MODEL:
+        return False
+    
+    try:
+        print("正在初始化ONNX模型...")
+        # 初始化OCR模型
+        ocr_model = OcrModel()
+        
+        # 将模型和数据移动到GPU
+        if torch.cuda.is_available():
+            print("Using CUDA acceleration")
+            ocr_model.model = ocr_model.model.to('cuda')
+        else:
+            print("CUDA not available, using CPU")
+        
+        MODEL_INITIALIZED = True
+        print("ONNX模型初始化成功")
+        return True
+    except Exception as e:
+        print(f"初始化ONNX模型失败: {str(e)}")
+        return False
+
+# # 应用启动时初始化ONNX模型
+# if HAS_LOCAL_MODEL:
+#     init_onnx_model()
 
 def init_db():
     """初始化数据库"""
@@ -207,6 +257,71 @@ def get_req_data(req_data, appid, secret):
     header["sign"] = hashlib.md5(pre_sign_string.encode()).hexdigest()
     return header, req_data
 
+def recognize_with_api(image_path):
+    """使用API进行公式识别"""
+    try:
+        # 检查API配置是否完整
+        if not config['SIMPLETEX_APP_ID'] or not config['SIMPLETEX_APP_SECRET']:
+            return {"status": False, "msg": 'API配置信息不完整'} 
+        
+        # API call logic
+        data = {}
+        header, data = get_req_data(data, config['SIMPLETEX_APP_ID'], config['SIMPLETEX_APP_SECRET'])
+        
+        # 使用with语句确保文件在使用后正确关闭
+        with open(image_path, 'rb') as f:
+            img_file = {"file": f}
+            res = requests.post("https://server.simpletex.cn/api/latex_ocr", 
+                              files=img_file, data=data, headers=header)
+        
+        result = json.loads(res.text)
+        return result
+    except Exception as e:
+        return {"status": False, "msg": f'API识别错误: {str(e)}'}
+
+def recognize_with_local_model(image_path):
+    """使用本地ONNX模型进行公式识别"""
+    global ocr_model
+    global MODEL_INITIALIZED
+    
+    try:
+        # 检查模型是否已初始化
+        if not MODEL_INITIALIZED:
+            # 尝试初始化模型
+            if not init_onnx_model():
+                return {"status": False, "msg": '本地ONNX模型未成功加载'}
+
+        # 读取图像
+        image = Image.open(image_path).convert("RGB")
+        
+        # 进行OCR识别
+        results = batch_inference([image], ocr_model.model, ocr_model.processor)
+        
+        if not results or len(results) == 0:
+            return {"status": False, "msg": '识别失败：未能识别出公式'}
+        
+        # 从结果中提取LaTeX代码
+        latex_result = results[0]
+        
+        # 检查结果是否符合LaTeX格式 (通常以$开头和结尾)
+        if latex_result.startswith('$') and latex_result.endswith('$'):
+            latex_code = latex_result[1:-1]  # 去掉首尾的$符号
+        else:
+            latex_code = latex_result
+        
+        # 构造与API一致的返回格式
+        result = {
+            "status": True,
+            "res": {
+                "latex": latex_code,
+                "conf": 0.85  # 本地模型暂时没有置信度，使用一个默认值
+            }
+        }
+        
+        return result
+    except Exception as e:
+        return {"status": False, "msg": f'本地模型识别错误: {str(e)}'}
+
 @app.route('/')
 def index():
     # 确保用户有一个session_id
@@ -219,6 +334,9 @@ def recognize_formula():
         return jsonify({'status': False, 'msg': '没有提供图像'})
     
     try:
+        # 获取识别模式
+        mode = request.form.get('mode', 'api')  # 默认为API模式
+        
         # 生成唯一的临时文件名，避免冲突
         temp_file = f"temp_{uuid.uuid4().hex}.png"
         
@@ -232,20 +350,17 @@ def recognize_formula():
             image_data = image_data.split(',')[1] if ',' in image_data else image_data
             with open(temp_file, 'wb') as f:
                 f.write(base64.b64decode(image_data))
-        
-        # Check if config is complete
-        if not config['SIMPLETEX_APP_ID'] or not config['SIMPLETEX_APP_SECRET']:
-            return jsonify({'status': False, 'msg': 'API配置信息不完整'})
-        
-        # API call logic
-        data = {}
-        header, data = get_req_data(data, config['SIMPLETEX_APP_ID'], config['SIMPLETEX_APP_SECRET'])
-        
-        # 使用with语句确保文件在使用后正确关闭
-        with open(temp_file, 'rb') as f:
-            img_file = {"file": f}
-            res = requests.post("https://server.simpletex.cn/api/latex_ocr", 
-                              files=img_file, data=data, headers=header)
+
+        # 根据模式选择不同的识别方法
+        if mode == 'local':
+            if not HAS_LOCAL_MODEL:
+                result = {"status": False, "msg": "本地ONNX模型依赖未安装"}
+            else:
+                # 本地模型会在 recognize_with_local_model 中按需初始化
+                result = recognize_with_local_model(temp_file)
+        else:
+            # 默认使用API模式
+            result = recognize_with_api(temp_file)
         
         # 确保文件已关闭后再尝试删除
         try:
@@ -254,8 +369,6 @@ def recognize_formula():
         except Exception as e:
             print(f"无法删除临时文件: {str(e)}")
             # 继续处理，不让临时文件错误影响主流程
-            
-        result = json.loads(res.text)
         
         # 如果识别成功，添加到历史记录
         if result.get('status', False) and 'res' in result:
@@ -307,6 +420,24 @@ def clear_history():
     session_id = get_session_id()
     clear_history_items(session_id)
     return jsonify({'status': True, 'msg': '历史记录已清空'})
+
+@app.route('/init_model', methods=['POST'])
+def initialize_model():
+    """按需初始化本地ONNX模型的端点"""
+    if not HAS_LOCAL_MODEL:
+        return jsonify({
+            'status': False, 
+            'msg': '本地ONNX模型所需依赖未安装',
+            'initialized': False
+        })
+    
+    success = init_onnx_model()
+    
+    return jsonify({
+        'status': success,
+        'msg': '本地ONNX模型初始化成功' if success else '本地ONNX模型初始化失败',
+        'initialized': success
+    })
 
 def create_tray_icon():
     # 创建系统托盘图标

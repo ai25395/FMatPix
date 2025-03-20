@@ -26,8 +26,10 @@
             color: #f0f0f0;
             border-color: #555;
         }
+
+        /* 修改公式显示区域高度 */
         #formulaDisplay {
-            min-height: 635px;
+            min-height: 450px; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -85,8 +87,9 @@
         .badge-confidence {
             font-size: 0.75em;
         }
+        
         #historyList {
-            max-height: 300px;
+            max-height: 200px; /* 调整为更合适的高度 */
             overflow-y: auto;
         }
         .history-latex {
@@ -103,24 +106,93 @@
         .dark-mode .history-latex {
             background-color: rgba(255, 255, 255, 0.1);
         }
+        /* 添加一个修改区域，将左右两栏调整为高度对齐 */
+        .equal-height-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .equal-height-row > [class*='col-'] {
+            display: flex;
+            flex-direction: column;
+        }
+        .left-column, .right-column {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-fill-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-fill-card .card-body {
+            flex: 1;
+        }
+        .latex-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .latex-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .latex-editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        #latexEditor {
+            flex: 1;
+            min-height: 120px; /* 设置最小高度 */
+            font-family: Consolas, monospace;
+            resize: none; /* 禁用手动调整大小，由flex自动调整 */
+        }
+
+        .settings-card {
+            height: auto; /* 使用内容自然高度 */
+        }
     </style>
 </head>
 <body>
+    <!-- 修改HTML布局 -->
     <div class="container py-4">
-        <!-- <div class="row mb-4">
-            <div class="col">
-                <h1 class="text-center">公式识别器 <small class="text-muted">Web版</small></h1>
-            </div>
-        </div> -->
-        
-        <div class="row">
-            <!-- 左侧：公式显示区域 -->
+        <div class="row equal-height-row">
+            <!-- 左侧：公式显示区域和历史记录 -->
             <div class="col-lg-8 mb-4">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">公式预览</h5>
-                        <div id="formulaDisplay" class="formula-container">
-                            <div id="mathOutput">欢迎使用公式识别器</div>
+                <div class="left-column">
+                    <!-- 公式显示卡片 -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">公式预览</h5>
+                            <div id="formulaDisplay" class="formula-container">
+                                <div id="mathOutput">欢迎使用公式识别器</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 历史记录卡片 -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">历史记录</h5>
+                                <button id="clearHistoryBtn" class="btn btn-sm btn-outline-danger">清空历史</button>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="historyLimitRange" class="form-label">历史记录数量: <span id="historyLimitValue">5</span></label>
+                                <input type="range" class="form-range" id="historyLimitRange" min="1" max="20" value="5">
+                            </div>
+                            
+                            <div id="historyList" class="mt-3">
+                                <!-- 历史记录将在这里动态添加 -->
+                                <div class="text-center text-muted py-3">暂无历史记录</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -128,89 +200,83 @@
             
             <!-- 右侧：控制面板 -->
             <div class="col-lg-4">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">图像输入</h5>
-                        <div class="mb-3">
-                            <label for="imageFile" class="form-label">选择图片文件</label>
-                            <input type="file" class="form-control" id="imageFile" accept="image/*">
-                        </div>
-                        <div class="mb-3">
-                            <button id="clipboardBtn" class="btn btn-primary w-100">从剪贴板获取图像</button>
-                        </div>
-                        <div id="clipboardPreviewContainer" class="text-center d-none">
-                            <img id="clipboardPreview" class="clipboard-preview" alt="剪贴板预览">
+                <div class="right-column">
+                    <!-- 图像输入卡片 -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">图像输入</h5>
+                            <div class="mb-3">
+                                <label for="imageFile" class="form-label">选择图片文件</label>
+                                <input type="file" class="form-control" id="imageFile" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <button id="clipboardBtn" class="btn btn-primary w-100">从剪贴板获取图像</button>
+                            </div>
+                            <div id="clipboardPreviewContainer" class="text-center d-none">
+                                <img id="clipboardPreview" class="clipboard-preview" alt="剪贴板预览">
+                            </div>
+                            
+                            <!-- 添加模式选择 -->
+                            <div class="mb-3">
+                                <label for="recognitionMode" class="form-label">识别模式</label>
+                                <select class="form-select" id="recognitionMode">
+                                    <option value="api" selected>API模式</option>
+                                    <option value="local">本地模式</option>
+                                </select>
+                                <div class="form-text">API模式使用在线服务，本地模式使用ONNX模型</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">LaTeX代码</h5>
-                        <div class="mb-3">
-                            <textarea id="latexEditor" class="form-control" rows="5" placeholder="编辑LaTeX代码"></textarea>
-                        </div>
-                        <div class="row g-2 mb-2">
-                            <div class="col">
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="copyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        复制代码
-                                    </button>
-                                    <ul class="dropdown-menu w-100" aria-labelledby="copyDropdown">
-                                        <li><a class="dropdown-item" href="#" id="copyRaw">直接复制LaTeX代码</a></li>
-                                        <li><a class="dropdown-item" href="#" id="copyDollar">复制为$...$格式</a></li>
-                                        <li><a class="dropdown-item" href="#" id="copyMathML">复制为MathML格式</a></li>
-                                    </ul>
+                    
+                    <!-- LaTeX代码卡片 - 添加flex-fill-card和latex-card类 -->
+                    <div class="card shadow-sm mb-4 flex-fill-card latex-card">
+                        <div class="card-body">
+                            <h5 class="card-title">LaTeX代码</h5>
+                            <div class="latex-editor-container">
+                                <textarea id="latexEditor" class="form-control" placeholder="编辑LaTeX代码"></textarea>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="copyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            复制代码
+                                        </button>
+                                        <ul class="dropdown-menu w-100" aria-labelledby="copyDropdown">
+                                            <li><a class="dropdown-item" href="#" id="copyRaw">直接复制LaTeX代码</a></li>
+                                            <li><a class="dropdown-item" href="#" id="copyDollar">复制为$...$格式</a></li>
+                                            <li><a class="dropdown-item" href="#" id="copyMathML">复制为MathML格式</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <button id="renderBtn" class="btn btn-outline-primary w-100">立即渲染</button>
                                 </div>
                             </div>
-                            <div class="col">
-                                <button id="renderBtn" class="btn btn-outline-primary w-100">立即渲染</button>
+                        </div>
+                    </div>
+                            
+                    <div class="card shadow-sm mb-4 settings-card">
+                        <div class="card-body">
+                            <h5 class="card-title">设置</h5>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                                <label class="form-check-label" for="darkModeSwitch">暗色模式</label>
+                            </div>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="autoRenderSwitch" checked>
+                                <label class="form-check-label" for="autoRenderSwitch">自动渲染</label>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- 新增历史记录卡片 -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h5 class="card-title mb-0">历史记录</h5>
-                            <button id="clearHistoryBtn" class="btn btn-sm btn-outline-danger">清空历史</button>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="historyLimitRange" class="form-label">历史记录数量: <span id="historyLimitValue">5</span></label>
-                            <input type="range" class="form-range" id="historyLimitRange" min="1" max="20" value="5">
-                        </div>
-                        
-                        <div id="historyList" class="mt-3">
-                            <!-- 历史记录将在这里动态添加 -->
-                            <div class="text-center text-muted py-3">暂无历史记录</div>
-                        </div>
+                    
+                    <!-- 状态栏 -->
+                    <div class="alert alert-info" id="statusBar" role="alert">
+                        就绪
                     </div>
-                </div>
-                
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">设置</h5>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="darkModeSwitch">
-                            <label class="form-check-label" for="darkModeSwitch">暗色模式</label>
-                        </div>
-                        <div class="form-check form-switch mt-2">
-                            <input class="form-check-input" type="checkbox" id="autoRenderSwitch" checked>
-                            <label class="form-check-label" for="autoRenderSwitch">自动渲染</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="alert alert-info" id="statusBar" role="alert">
-                    就绪
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -233,6 +299,7 @@
             const historyLimitRange = document.getElementById('historyLimitRange');
             const historyLimitValue = document.getElementById('historyLimitValue');
             const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const recognitionMode = document.getElementById('recognitionMode');
             
             // Variables
             let updateTimeout = null;
@@ -383,6 +450,7 @@
                 
                 const formData = new FormData();
                 formData.append('file', file);
+                formData.append('mode', recognitionMode.value); // Add this line
                 
                 fetch('/recognize', {
                     method: 'POST',
@@ -401,7 +469,7 @@
                         // 识别成功后重新加载历史记录
                         loadHistory();
                     } else {
-                        console.error('API错误:', data);
+                        console.error('识别错误:', data);
                         updateStatus(`识别失败: ${data.msg || '未知错误'}`, true);
                     }
                 })
@@ -430,7 +498,7 @@
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: `image_data=${encodeURIComponent(dataUrl)}`
+                    body: `image_data=${encodeURIComponent(dataUrl)}&mode=${encodeURIComponent(recognitionMode.value)}`
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -632,6 +700,35 @@
                 setHistoryLimit(this.value);
             });
             
+         
+            recognitionMode.addEventListener('change', function() {
+                const mode = this.value;
+                if (mode === 'local') {
+                    // 尝试初始化本地模型
+                    updateStatus('正在初始化本地ONNX模型...');
+                    
+                    fetch('/init_model', {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            updateStatus('已切换到本地ONNX模型模式');
+                        } else {
+                            updateStatus(`切换到本地模式失败: ${data.msg}`, true);
+                            // 如果初始化失败，回退到API模式
+                            recognitionMode.value = 'api';
+                        }
+                    })
+                    .catch(error => {
+                        updateStatus(`模型初始化请求出错: ${error}`, true);
+                        // 如果发生错误，回退到API模式
+                        recognitionMode.value = 'api';
+                    });
+                } else {
+                    updateStatus('已切换到API模式');
+                }
+            });
             clearHistoryBtn.addEventListener('click', clearHistory);
         });
     </script>
