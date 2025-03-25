@@ -118,7 +118,7 @@ class VariableDonutImageProcessor(DonutImageProcessor):
         images: ImageInput,
         do_resize: bool = None,
         size: Dict[str, int] = None,
-        resample: PILImageResampling = None,
+        resample: int = PIL.Image.BILINEAR,
         do_thumbnail: bool = None,
         do_align_long_axis: bool = None,
         do_pad: bool = None,

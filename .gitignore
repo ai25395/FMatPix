@@ -1,0 +1,23 @@
+# 排除虚拟环境
+my_venv/
+
+#排除模型
+models/
+
+#排除
+texmml/
+
+# 排除数据库文件
+formula_history.db
+
+# 排除IDE配置文件
+.idea/
+.vscode/
+
+# 排除Python编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 排除日志文件
+*.log

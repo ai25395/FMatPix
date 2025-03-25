@@ -1,0 +1,93 @@
+body {
+    transition: background-color 0.3s, color 0.3s;
+}
+.dark-mode {
+    background-color: #222;
+    color: #f0f0f0;
+}
+.dark-mode .card {
+    background-color: #333;
+    color: #f0f0f0;
+}
+.dark-mode .form-control, .dark-mode .form-select {
+    background-color: #444;
+    color: #f0f0f0;
+    border-color: #555;
+}
+#formulaDisplay {
+    min-height: 635px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: background-color 0.3s;
+}
+.dark-mode #formulaDisplay {
+    background-color: #333;
+    border-color: #555;
+}
+#latexEditor {
+    font-family: Consolas, monospace;
+    resize: vertical;
+}
+.clipboard-preview {
+    max-width: 100%;
+    max-height: 200px;
+    display: block;
+    margin: 10px auto;
+}
+.formula-container {
+    overflow-x: auto;
+}
+.history-item {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: background-color 0.2s;
+}
+.history-item:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+.dark-mode .history-item:hover {
+    background-color: rgba(0, 123, 255, 0.2);
+}
+.history-formula {
+    overflow-x: auto;
+    max-width: 100%;
+    font-size: 0.9em;
+}
+.history-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    color: #6c757d;
+    margin-top: 5px;
+}
+.dark-mode .history-meta {
+    color: #adb5bd;
+}
+.badge-confidence {
+    font-size: 0.75em;
+}
+#historyList {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.history-latex {
+    font-family: Consolas, monospace;
+    background-color: rgba(0, 0, 0, 0.05);
+    padding: 2px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: inline-block;
+}
+.dark-mode .history-latex {
+    background-color: rgba(255, 255, 255, 0.1);
+}

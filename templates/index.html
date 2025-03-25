@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公式识别器 - Web版</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #222;
+            color: #f0f0f0;
+        }
+        .dark-mode .card {
+            background-color: #333;
+            color: #f0f0f0;
+        }
+        .dark-mode .form-control, .dark-mode .form-select {
+            background-color: #444;
+            color: #f0f0f0;
+            border-color: #555;
+        }
+
+        /* 修改公式显示区域高度 */
+        #formulaDisplay {
+            min-height: 450px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        .dark-mode #formulaDisplay {
+            background-color: #333;
+            border-color: #555;
+        }
+        #latexEditor {
+            font-family: Consolas, monospace;
+            resize: vertical;
+        }
+        .clipboard-preview {
+            max-width: 100%;
+            max-height: 200px;
+            display: block;
+            margin: 10px auto;
+        }
+        .formula-container {
+            overflow-x: auto;
+        }
+        .history-item {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            transition: background-color 0.2s;
+        }
+        .history-item:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+        .dark-mode .history-item:hover {
+            background-color: rgba(0, 123, 255, 0.2);
+        }
+        .history-formula {
+            overflow-x: auto;
+            max-width: 100%;
+            font-size: 0.9em;
+        }
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .dark-mode .history-meta {
+            color: #adb5bd;
+        }
+        .badge-confidence {
+            font-size: 0.75em;
+        }
+        
+        #historyList {
+            max-height: 200px; /* 调整为更合适的高度 */
+            overflow-y: auto;
+        }
+        .history-latex {
+            font-family: Consolas, monospace;
+            background-color: rgba(0, 0, 0, 0.05);
+            padding: 2px 4px;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: inline-block;
+        }
+        .dark-mode .history-latex {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        /* 添加一个修改区域，将左右两栏调整为高度对齐 */
+        .equal-height-row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .equal-height-row > [class*='col-'] {
+            display: flex;
+            flex-direction: column;
+        }
+        .left-column, .right-column {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-fill-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .flex-fill-card .card-body {
+            flex: 1;
+        }
+        .latex-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .latex-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .latex-editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        #latexEditor {
+            flex: 1;
+            min-height: 120px; /* 设置最小高度 */
+            font-family: Consolas, monospace;
+            resize: none; /* 禁用手动调整大小，由flex自动调整 */
+        }
+
+        .settings-card {
+            height: auto; /* 使用内容自然高度 */
+        }
+    </style>
+</head>
+<body>
+    <!-- 修改HTML布局 -->
+    <div class="container py-4">
+        <div class="row equal-height-row">
+            <!-- 左侧：公式显示区域和历史记录 -->
+            <div class="col-lg-8 mb-4">
+                <div class="left-column">
+                    <!-- 公式显示卡片 -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">公式预览</h5>
+                            <div id="formulaDisplay" class="formula-container">
+                                <div id="mathOutput">欢迎使用公式识别器</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 历史记录卡片 -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title mb-0">历史记录</h5>
+                                <button id="clearHistoryBtn" class="btn btn-sm btn-outline-danger">清空历史</button>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="historyLimitRange" class="form-label">历史记录数量: <span id="historyLimitValue">5</span></label>
+                                <input type="range" class="form-range" id="historyLimitRange" min="1" max="20" value="5">
+                            </div>
+                            
+                            <div id="historyList" class="mt-3">
+                                <!-- 历史记录将在这里动态添加 -->
+                                <div class="text-center text-muted py-3">暂无历史记录</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：控制面板 -->
+            <div class="col-lg-4">
+                <div class="right-column">
+                    <!-- 图像输入卡片 -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">图像输入</h5>
+                            <div class="mb-3">
+                                <label for="imageFile" class="form-label">选择图片文件</label>
+                                <input type="file" class="form-control" id="imageFile" accept="image/*">
+                            </div>
+                            <div class="mb-3">
+                                <button id="clipboardBtn" class="btn btn-primary w-100">从剪贴板获取图像</button>
+                            </div>
+                            <div id="clipboardPreviewContainer" class="text-center d-none">
+                                <img id="clipboardPreview" class="clipboard-preview" alt="剪贴板预览">
+                            </div>
+                            
+                            <!-- 添加模式选择 -->
+                            <div class="mb-3">
+                                <label for="recognitionMode" class="form-label">识别模式</label>
+                                <select class="form-select" id="recognitionMode">
+                                    <option value="api" selected>API模式</option>
+                                    <option value="local">本地模式</option>
+                                </select>
+                                <div class="form-text">API模式使用在线服务，本地模式使用ONNX模型</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- LaTeX代码卡片 - 添加flex-fill-card和latex-card类 -->
+                    <div class="card shadow-sm mb-4 flex-fill-card latex-card">
+                        <div class="card-body">
+                            <h5 class="card-title">LaTeX代码</h5>
+                            <div class="latex-editor-container">
+                                <textarea id="latexEditor" class="form-control" placeholder="编辑LaTeX代码"></textarea>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col">
+                                    <div class="dropdown">
+                                        <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" id="copyDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            复制代码
+                                        </button>
+                                        <ul class="dropdown-menu w-100" aria-labelledby="copyDropdown">
+                                            <li><a class="dropdown-item" href="#" id="copyRaw">直接复制LaTeX代码</a></li>
+                                            <li><a class="dropdown-item" href="#" id="copyDollar">复制为$...$格式</a></li>
+                                            <li><a class="dropdown-item" href="#" id="copyMathML">复制为MathML格式</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <button id="renderBtn" class="btn btn-outline-primary w-100">立即渲染</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                            
+                    <div class="card shadow-sm mb-4 settings-card">
+                        <div class="card-body">
+                            <h5 class="card-title">设置</h5>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                                <label class="form-check-label" for="darkModeSwitch">暗色模式</label>
+                            </div>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" id="autoRenderSwitch" checked>
+                                <label class="form-check-label" for="autoRenderSwitch">自动渲染</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 状态栏 -->
+                    <div class="alert alert-info" id="statusBar" role="alert">
+                        就绪
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Main JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const formulaDisplay = document.getElementById('mathOutput');
+            const latexEditor = document.getElementById('latexEditor');
+            const copyBtn = document.getElementById('copyBtn');
+            const renderBtn = document.getElementById('renderBtn');
+            const imageFile = document.getElementById('imageFile');
+            const clipboardBtn = document.getElementById('clipboardBtn');
+            const clipboardPreview = document.getElementById('clipboardPreview');
+            const clipboardPreviewContainer = document.getElementById('clipboardPreviewContainer');
+            const darkModeSwitch = document.getElementById('darkModeSwitch');
+            const autoRenderSwitch = document.getElementById('autoRenderSwitch');
+            const statusBar = document.getElementById('statusBar');
+            const historyList = document.getElementById('historyList');
+            const historyLimitRange = document.getElementById('historyLimitRange');
+            const historyLimitValue = document.getElementById('historyLimitValue');
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            const recognitionMode = document.getElementById('recognitionMode');
+            
+            // Variables
+            let updateTimeout = null;
+            const updateDelay = 500; // ms
+            
+            // Check system dark mode preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                darkModeSwitch.checked = true;
+                document.body.classList.add('dark-mode');
+            }
+            
+            // 加载历史记录
+            loadHistory();
+            
+            // 增强 updateHistoryList 函数以支持 id 字段
+            function updateHistoryList(history) {
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div class="text-center text-muted py-3">暂无历史记录</div>';
+                    return;
+                }
+                
+                history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.dataset.latex = item.latex;
+                    historyItem.dataset.id = item.id; // 存储记录ID
+                    
+                    // 计算置信度颜色
+                    const confValue = item.conf * 100;
+                    let confClass = 'bg-danger';
+                    if (confValue >= 80) {
+                        confClass = 'bg-success';
+                    } else if (confValue >= 60) {
+                        confClass = 'bg-warning';
+                    }
+                    
+                    historyItem.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="history-latex">${item.latex}</div>
+                            <span class="badge ${confClass} ms-2 badge-confidence">${confValue.toFixed(1)}%</span>
+                        </div>
+                        <div class="history-meta">
+                            <small>${item.timestamp}</small>
+                        </div>
+                    `;
+                    
+                    // 添加点击事件
+                    historyItem.addEventListener('click', function() {
+                        latexEditor.value = this.dataset.latex;
+                        renderFormula();
+                        updateStatus('已从历史记录加载公式');
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+                
+                // 渲染列表中所有公式的LaTeX预览
+                MathJax.typesetPromise([historyList]).catch(console.error);
+            }
+
+            // Functions
+            function updateStatus(message, isError = false) {
+                statusBar.textContent = message;
+                statusBar.className = isError ? 'alert alert-danger' : 'alert alert-info';
+            }
+            
+            function renderFormula() {
+                const latex = latexEditor.value.trim();
+                if (!latex) {
+                    formulaDisplay.innerHTML = "请输入LaTeX代码";
+                    return;
+                }
+                
+                // Use MathJax to render the formula
+                formulaDisplay.innerHTML = `\\[${latex}\\]`;
+                MathJax.typesetPromise([formulaDisplay]).then(() => {
+                    updateStatus('公式已渲染');
+                }).catch(error => {
+                    updateStatus(`渲染错误: ${error.message}`, true);
+                });
+            }
+            
+            function scheduleFormulaUpdate() {
+                if (updateTimeout) {
+                    clearTimeout(updateTimeout);
+                }
+                
+                if (autoRenderSwitch.checked) {
+                    updateTimeout = setTimeout(renderFormula, updateDelay);
+                }
+            }
+            
+            function copyLatex(format = 'raw') {
+                const latex = latexEditor.value.trim();
+                if (!latex) {
+                    updateStatus('没有内容可复制');
+                    return;
+                }
+                
+                let textToCopy = latex;
+                if (format === 'dollar') {
+                    textToCopy = `$${latex}$`;
+                }
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const message = format === 'raw' ? 
+                        'LaTeX代码已复制到剪贴板' : 
+                        'LaTeX代码已复制为$...$格式';
+                    updateStatus(message);
+                }).catch(err => {
+                    updateStatus(`复制失败: ${err}`, true);
+                });
+            }
+
+            function copyMathML() {
+                const latex = latexEditor.value.trim();
+                if (!latex) {
+                    updateStatus('没有内容可复制');
+                    return;
+                }
+                
+                try {
+                    const math = MathJax.tex2mml(latex);
+                    navigator.clipboard.writeText(math).then(() => {
+                        updateStatus('MathML代码已复制到剪贴板');
+                    }).catch(err => {
+                        updateStatus(`复制失败: ${err}`, true);
+                    });
+                } catch (error) {
+                    updateStatus(`MathML转换失败: ${error.message}`, true);
+                }
+            }
+            
+            function processImage(file) {
+                if (!file) {
+                    updateStatus('没有选择文件');
+                    return;
+                }
+                
+                if (!file.type.startsWith('image/')) {
+                    updateStatus('请选择有效的图像文件', true);
+                    return;
+                }
+                
+                updateStatus('正在处理图像...');
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('mode', recognitionMode.value); // Add this line
+                
+                fetch('/recognize', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        const latex = data.res.latex;
+                        const conf = data.res.conf;
+                        
+                        latexEditor.value = latex;
+                        renderFormula();
+                        updateStatus(`识别成功，置信度: ${(conf * 100).toFixed(2)}%`);
+                        
+                        // 识别成功后重新加载历史记录
+                        loadHistory();
+                    } else {
+                        console.error('识别错误:', data);
+                        updateStatus(`识别失败: ${data.msg || '未知错误'}`, true);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求错误:', error);
+                    updateStatus(`请求错误: ${error.message || '网络连接问题'}`, true);
+                    
+                    // 在5秒后重置状态
+                    setTimeout(() => {
+                        if (statusBar.textContent.includes(error.message)) {
+                            updateStatus('就绪，可以重试');
+                        }
+                    }, 5000);
+                });
+            }
+            
+            function processClipboardImage(dataUrl) {
+                updateStatus('正在处理剪贴板图像...');
+                
+                // Show preview
+                clipboardPreview.src = dataUrl;
+                clipboardPreviewContainer.classList.remove('d-none');
+                
+                fetch('/recognize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `image_data=${encodeURIComponent(dataUrl)}&mode=${encodeURIComponent(recognitionMode.value)}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        const latex = data.res.latex;
+                        const conf = data.res.conf;
+                        
+                        latexEditor.value = latex;
+                        renderFormula();
+                        updateStatus(`识别成功，置信度: ${(conf * 100).toFixed(2)}%`);
+                        
+                        // 识别成功后重新加载历史记录
+                        loadHistory();
+                    } else {
+                        updateStatus(`识别失败: ${data.msg}`, true);
+                    }
+                })
+                .catch(error => {
+                    updateStatus(`请求错误: ${error}`, true);
+                });
+            }
+            
+            // 新增函数：加载历史记录
+            function loadHistory() {
+                fetch('/get_history')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        // 更新历史记录限制滑块
+                        historyLimitRange.value = data.history_limit;
+                        historyLimitValue.textContent = data.history_limit;
+                        
+                        // 更新历史记录列表
+                        updateHistoryList(data.history);
+                    } else {
+                        console.error('获取历史记录失败:', data);
+                    }
+                })
+                .catch(error => {
+                    console.error('请求历史记录出错:', error);
+                });
+            }
+            
+            // 更新历史记录列表界面
+            function updateHistoryList(history) {
+                historyList.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyList.innerHTML = '<div class="text-center text-muted py-3">暂无历史记录</div>';
+                    return;
+                }
+                
+                history.forEach((item, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.dataset.latex = item.latex;
+                    
+                    // 计算置信度颜色
+                    const confValue = item.conf * 100;
+                    let confClass = 'bg-danger';
+                    if (confValue >= 80) {
+                        confClass = 'bg-success';
+                    } else if (confValue >= 60) {
+                        confClass = 'bg-warning';
+                    }
+                    
+                    historyItem.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="history-latex">${item.latex}</div>
+                            <span class="badge ${confClass} ms-2 badge-confidence">${confValue.toFixed(1)}%</span>
+                        </div>
+                        <div class="history-meta">
+                            <small>${item.timestamp}</small>
+                        </div>
+                    `;
+                    
+                    // 添加点击事件
+                    historyItem.addEventListener('click', function() {
+                        latexEditor.value = this.dataset.latex;
+                        renderFormula();
+                        updateStatus('已从历史记录加载公式');
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+                
+                // 渲染列表中所有公式的LaTeX预览
+                MathJax.typesetPromise([historyList]).catch(console.error);
+            }
+            
+            // 设置历史记录限制
+            function setHistoryLimit(limit) {
+                const formData = new FormData();
+                formData.append('limit', limit);
+                
+                fetch('/set_history_limit', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        updateStatus(data.msg);
+                    } else {
+                        updateStatus(data.msg, true);
+                    }
+                })
+                .catch(error => {
+                    updateStatus(`设置历史记录限制失败: ${error}`, true);
+                });
+            }
+            
+            // 清空历史记录
+            function clearHistory() {
+                if (!confirm('确定要清空所有历史记录吗？')) {
+                    return;
+                }
+                
+                fetch('/clear_history', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status) {
+                        updateStatus(data.msg);
+                        loadHistory(); // 重新加载（空的）历史记录
+                    } else {
+                        updateStatus(data.msg, true);
+                    }
+                })
+                .catch(error => {
+                    updateStatus(`清空历史记录失败: ${error}`, true);
+                });
+            }
+            
+            // Event Listeners
+            darkModeSwitch.addEventListener('change', function() {
+                if (this.checked) {
+                    document.body.classList.add('dark-mode');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                }
+            });
+            
+            latexEditor.addEventListener('input', scheduleFormulaUpdate);
+            
+            renderBtn.addEventListener('click', renderFormula);
+            
+            // 复制按钮事件监听
+            document.getElementById('copyRaw').addEventListener('click', function(e) {
+                e.preventDefault();
+                copyLatex('raw');
+            });
+            
+            document.getElementById('copyDollar').addEventListener('click', function(e) {
+                e.preventDefault();
+                copyLatex('dollar');
+            });
+
+            document.getElementById('copyMathML').addEventListener('click', function(e) {
+                e.preventDefault();
+                copyMathML();
+            });
+            
+            imageFile.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    processImage(this.files[0]);
+                }
+            });
+            
+            clipboardBtn.addEventListener('click', function() {
+                navigator.clipboard.read().then(items => {
+                    for (const item of items) {
+                        if (item.types.includes('image/png') || 
+                            item.types.includes('image/jpeg')) {
+                            const type = item.types.find(t => t.startsWith('image/'));
+                            item.getType(type).then(blob => {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    processClipboardImage(e.target.result);
+                                };
+                                reader.readAsDataURL(blob);
+                            });
+                            return;
+                        }
+                    }
+                    updateStatus('剪贴板中没有图像', true);
+                }).catch(error => {
+                    updateStatus(`读取剪贴板失败: ${error}`, true);
+                });
+            });
+            
+            // 历史记录相关事件监听
+            historyLimitRange.addEventListener('input', function() {
+                historyLimitValue.textContent = this.value;
+            });
+            
+            historyLimitRange.addEventListener('change', function() {
+                setHistoryLimit(this.value);
+            });
+            
+         
+            recognitionMode.addEventListener('change', function() {
+                const mode = this.value;
+                if (mode === 'local') {
+                    // 尝试初始化本地模型
+                    updateStatus('正在初始化本地ONNX模型...');
+                    
+                    fetch('/init_model', {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status) {
+                            updateStatus('已切换到本地ONNX模型模式');
+                        } else {
+                            updateStatus(`切换到本地模式失败: ${data.msg}`, true);
+                            // 如果初始化失败，回退到API模式
+                            recognitionMode.value = 'api';
+                        }
+                    })
+                    .catch(error => {
+                        updateStatus(`模型初始化请求出错: ${error}`, true);
+                        // 如果发生错误，回退到API模式
+                        recognitionMode.value = 'api';
+                    });
+                } else {
+                    updateStatus('已切换到API模式');
+                }
+            });
+            clearHistoryBtn.addEventListener('click', clearHistory);
+        });
+    </script>
+</body>
+</html>
