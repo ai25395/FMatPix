@@ -12,24 +12,33 @@ import threading
 import time
 import mss
 import ctypes
-from win32 import win32gui, win32print
-from win32.lib import win32con
-from win32.win32api import GetSystemMetrics
+
 
 capturedImgs = []
 
+# 定义所需的常量和函数
+user32 = ctypes.windll.user32
+gdi32 = ctypes.windll.gdi32
+
+# 常量定义
+DESKTOPHORZRES = 118  # Windows API 常量值，表示水平分辨率
+DESKTOPVERTRES = 117  # Windows API 常量值，表示垂直分辨率
+SM_CXSCREEN = 0       # 屏幕宽度指标
+SM_CYSCREEN = 1       # 屏幕高度指标
+
+
 def get_real_resolution():
-    hDC = win32gui.GetDC(0)
-    # 横向分辨率
-    w = win32print.GetDeviceCaps(hDC, win32con.DESKTOPHORZRES)
-    # 纵向分辨率
-    h = win32print.GetDeviceCaps(hDC, win32con.DESKTOPVERTRES)
-    return w, h
+    hdc = user32.GetDC(0)
+    width = gdi32.GetDeviceCaps(hdc, DESKTOPHORZRES)
+    height = gdi32.GetDeviceCaps(hdc, DESKTOPVERTRES)
+    user32.ReleaseDC(0, hdc)
+    return width, height
+
 def get_screen_size():
-    # 获取缩放后的分辨率
-    w = GetSystemMetrics(0)
-    h = GetSystemMetrics(1)
-    return w, h
+    width = user32.GetSystemMetrics(SM_CXSCREEN)
+    height = user32.GetSystemMetrics(SM_CYSCREEN)
+    return width, height
+
 real_resolution = get_real_resolution()
 screen_size = get_screen_size()
 screen_scale_rate = round(real_resolution[0] / screen_size[0], 2)
@@ -41,15 +50,12 @@ except:  # win 8.0 or less
 
 if sys.platform == "win32":
     try:
-        import ctypes
-        user32 = ctypes.windll.user32
-        dpi = user32.GetDpiForSystem()
-                
+        dpi = user32.GetDpiForSystem()       
         sf = dpi / 96.0  # 96 DPI is the default for Windows
     except:
         sf = 1.0
 else:
-    sf = 1.0  # For non-Windows systems, use a default scale factor
+    sf = 1.0  # For non-Windows systems
 
 #记录截图框坐标
 class Box:
@@ -151,6 +157,7 @@ class ScreenShot:
             print(f"Grab: {box_area}")
             global capturedImgs
             img = self.sct.grab(region)
+            
             capturedImgs.append(Image.frombytes('RGB', (img.width, img.height), img.rgb))
     def selectStart(self, event):
         self.is_selecting = True
@@ -170,9 +177,6 @@ class ScreenShot:
 #FMatPix界面
 class MainWindow:
     def __init__(self, image_path=None, ocr=None, detector=None):
-
-
-        print('scaleFactor',sf)
         #设置缩放因子
         self.root = tk.Tk()
         self.root.tk.call('tk', 'scaling', sf)
@@ -181,7 +185,6 @@ class MainWindow:
         self.root.bind('<Map>',lambda x:self.root.attributes("-topmost",1))
         self.root.bind('<Unmap>',lambda x:self.root.attributes("-topmost",0))
         # 固定窗口尺寸
-        #self.root.resizable(0, 0)
         if getattr(sys, "frozen", None):
             basedir = sys._MEIPASS
         else:
@@ -193,6 +196,7 @@ class MainWindow:
         self.mathtypetext = ""
         self.latextext = ""
         self.history = [[],[]]
+        self.history_window = None
         self.historyImgs = []
         self.isBatch = False
         self.isPage = False
@@ -203,9 +207,8 @@ class MainWindow:
         if image_path is None:
             raise ValueError("Image path must be provided.")
 
-        self.root.title("Free Formula OCR for Latex and MathML v1.7 -~- Ltc")
+        self.root.title("Free Formula OCR for Latex and MathML v1.9 -~- Ltc")
         self.root.geometry(f"{int(630*pow(screen_scale_rate,0.7))}x{int(60*pow(screen_scale_rate,0.7))}")
-        #self.root.minsize(width=650,height=65)
         #控制同时只能有一个Screen
         self.hasScreen = False
         #初次运行读取预设图片
@@ -214,7 +217,6 @@ class MainWindow:
         else:
             basedir = os.path.dirname(__file__)
         self.image = Image.open(os.path.join(basedir,"models/GuiStartImg.PNG"))
-        #self.runCalWithTimeout(self.cal,self.image,8)
         # 创建按钮框架和按钮
         self.button_frame = tk.Frame(self.root)
         self.button_frame.pack(fill=tk.X, padx=20, pady=5)
@@ -293,6 +295,8 @@ class MainWindow:
     
     #创建历史公式显示界面
     def create_table(self):
+        if self.history_window and self.history_window.winfo_exists():
+            self.history_window.destroy()
         history = self.history
         scrollSum = 0
         def on_left_click(event,index):
@@ -305,7 +309,13 @@ class MainWindow:
             if topPos==0.0 and scrollDis==-1:
                 return
             canvas.yview_scroll(scrollDis, "units")
+        def on_window_close():
+            self.history_window.destroy()
+            self.history_window = None  # 窗口关闭时重置为None
+            
         table = tk.Toplevel(self.root)
+        self.history_window = table  # 更新跟踪属性
+        table.protocol("WM_DELETE_WINDOW", on_window_close)  # 绑定关闭事件
         table.title('左键单击图片复制tex，右键单击图片复制mathml')
         table.attributes("-topmost",1)
         table.bind('<Map>',lambda x:table.attributes("-topmost",1))
@@ -424,7 +434,7 @@ class MainWindow:
         except Exception as e:
             print("核心识别函数出错")
             print(e)
-            return ('','')
+            return ('error','error')
     #调用cal，并在超时时结束
     def runCalWithTimeout(self,func,img,timeout):
         q = queue.Queue()
@@ -436,7 +446,6 @@ class MainWindow:
                 print(f"Function raised an exception: {e}")
                 pass
         thread = threading.Thread(target=wrapper,args=(q,))
-        #thread.setDaemon(True)
         thread.start()
         thread.join(timeout)
         # 如果线程仍然存活，说明超时了
@@ -461,8 +470,6 @@ class MainWindow:
 
     def batchRecognition(self):
         global capturedImgs
-        print('batching')
-        print(len(capturedImgs))
         if len(capturedImgs)==0:
             return
         try:
@@ -491,7 +498,7 @@ class MainWindow:
             print('检测公式数量')
             print(len(imgs))
             texResults = self.ocr.predict(imgs)
-            mmlResults = [utils.postprocessForMathml(utils.postprocess(r)) for r in texResults]
+            mmlResults = [utils.postprocessForMathml(utils.InvokeTexmml(r)) for r in texResults]
             return (texResults,mmlResults,boxes,img)
         except Exception as e:
             print("核心识别函数出错")
@@ -521,7 +528,6 @@ class MainWindow:
             mmlres = res[1]
             width, height = img.size
             new_width = 550
-            #can_height = 800
             ratio = new_width / width
             new_height = int(height * ratio)
             img = img.resize((new_width, new_height))
@@ -530,7 +536,6 @@ class MainWindow:
             
             table = tk.Toplevel(self.root)
             table.title('左键单击复制tex，右键单击复制mml')
-            #table.attributes("-topmost",1)
             if new_height>700:
                 table_height = 700
             else:
@@ -552,7 +557,7 @@ class MainWindow:
             scrollbar = tk.Scrollbar(table, orient=tk.VERTICAL, command=canvas.yview)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             canvas.configure(yscrollcommand=scrollbar.set)
-
+            # 左键单击复制tex
             def on_left_click(event,boxes,texres,ratio):
                 x_offset = canvas.xview()[0] * new_width
                 y_offset = canvas.yview()[0] * new_height
@@ -562,8 +567,7 @@ class MainWindow:
                     bx, by, bw, bh = box
                     print(bx,x/ratio,bx+bw,by,y/ratio,by+bh)
                     if bx <= x/ratio < bx + bw and by <= y/ratio < by + bh:
-                        #点击到公式，复制至剪切板
-                        print('复制')
+                        print('复制tex')
                         pyperclip.copy(texres[i])
                 print('\n')
             # 右键单击复制mml
@@ -576,7 +580,7 @@ class MainWindow:
                     print(bx,x/ratio,bx+bw,by,y/ratio,by+bh)
                     if bx <= x/ratio < bx + bw and by <= y/ratio < by + bh:
                         #点击到公式，复制至剪切板
-                        print('复制')
+                        print('复制mml')
                         pyperclip.copy(mmlres[i])
             def release_image(photoid):
                 # 从 self.images 列表中移除对应的图像引用
@@ -587,14 +591,9 @@ class MainWindow:
                     except IndexError:
                         print("Image index out of range.")
                     finally:
-                        # 销毁 Toplevel 窗口
-                        #table.deiconify()  # 如果主窗口被隐藏，显示主窗口
-                        #top = self.toplevels.pop(self.image_index)
-                        table.destroy()  # 销毁 Toplevel 窗口
-                        #table.quit()
+                        table.destroy()
                 else:
                     print("No valid image index found.")
-            #canvas.bind_all("<MouseWheel>", on_mousewheel)
             canvas.config(scrollregion=(0, 0, new_width, new_height))
             nowid = self.photoId
             table.protocol("WM_DELETE_WINDOW", lambda:release_image(nowid))
@@ -621,8 +620,6 @@ class MainWindow:
             thread = threading.Thread(target=calAndShow,args=(capturedImgs[0],event))
             thread.start()
             event.wait()
-            #calAndShow(capturedImgs[0])
-            #识别，获取latextext、mathmltext、原始图片、boxes
         except Exception as e:
             print(e)
             print('page recognition error')
@@ -678,7 +675,8 @@ class MainWindow:
         top.attributes("-topmost",1)
         msg = tk.Message(
             top,
-            width=450,
+            width=600,
+            font=("TkDefaultFont", 14),
             text="""1、按Alt+Q开始截图，鼠标左键选择区域，Esc键退出。
 2、完成识别后，可单击copy latex/mathml来复制本次识别的公式。
 3、双击copy latex/mathml，来开启或关闭识别后自动复制功能。
@@ -701,8 +699,40 @@ class MainWindow:
     def run(self):
         self.root.mainloop()
 
-
-
+#截图键检测
+def on_press(key):
+    if window.hasScreen:
+        return
+    try:
+        if key == keyboard.Key.alt or key == keyboard.Key.alt_l or key == keyboard.Key.alt_r or key == keyboard.Key.alt_gr:
+            s.add('alt')
+        if key.char == 'q':
+            s.add('q')
+    except AttributeError:
+        pass 
+def on_release(key):
+    try:
+        if key == keyboard.Key.alt or key == keyboard.Key.alt_l or key == keyboard.Key.alt_r or key == keyboard.Key.alt_gr:
+            if 'alt' in s:
+                s.remove('alt')
+        if key.char == 'q':
+            if 'q' in s:
+                s.remove('q')
+    except AttributeError as e:
+        pass 
+    
+def start_keyboard_listener():
+    with keyboard.Listener(on_press=on_press,on_release=on_release) as listener:
+        listener.join()    
+def checkqueue():
+    try:
+        if (s.__contains__('alt') and s.__contains__('q')):
+            window.on_snip()
+            s.clear()
+    except queue.Empty:
+        pass
+    window.root.after(50, checkqueue)
+    
 if __name__ == "__main__":
     if getattr(sys, "frozen", None):
         basedir = sys._MEIPASS
@@ -712,42 +742,7 @@ if __name__ == "__main__":
     model = models.OcrModel()
     window = MainWindow(os.path.join(basedir, "models/GuiStartImg.png"), model, detector)
     #消息队列，用于键盘监听线程和主程序通信
-    s = set()
-
-    #键盘监听截图快捷键相关函数
-    def on_press(key):
-        if window.hasScreen:
-            return
-        try:
-            if key == keyboard.Key.alt or key == keyboard.Key.alt_l or key == keyboard.Key.alt_r or key == keyboard.Key.alt_gr:
-                s.add('alt')
-            if key.char == 'q':
-                s.add('q')
-        except AttributeError:
-            pass 
-    def on_release(key):
-        try:
-            if key == keyboard.Key.alt or key == keyboard.Key.alt_l or key == keyboard.Key.alt_r or key == keyboard.Key.alt_gr:
-                if 'alt' in s:
-                    s.remove('alt')
-            if key.char == 'q':
-                if 'q' in s:
-                    s.remove('q')
-        except AttributeError as e:
-            pass 
-        
-    def start_keyboard_listener():
-        with keyboard.Listener(on_press=on_press,on_release=on_release) as listener:
-            listener.join()    
-    def checkqueue():
-        try:
-            if (s.__contains__('alt') and s.__contains__('q')):
-                window.on_snip()
-                s.clear()
-        except queue.Empty:
-            pass
-        window.root.after(50, checkqueue)
-    
+    s = set() 
     #启动键盘监听线程
     listener_process = threading.Thread(target=start_keyboard_listener,daemon=True)
     listener_process.start()
@@ -755,3 +750,4 @@ if __name__ == "__main__":
     #启动主程序
     window.root.mainloop()
         
+
