@@ -31,6 +31,7 @@ def InvokeTexmml(latextext):
         # 读取结果文件
         with open(resultPath, 'r', encoding='utf-8') as file:
             mml = file.read().strip()
+            mml = mml.replace('<math>','<math xmlns="http://www.w3.org/1998/Math/MathML">')
             return mml
     else:
         return 'latex2mathmlError'
@@ -190,7 +191,7 @@ class PreProcess:
         self.mean = np.array([0.7931, 0.7931, 0.7931]).astype(np.float32)
         self.std = np.array([0.1738, 0.1738, 0.1738]).astype(np.float32)
         self.detecter = OrtInferSession(detect_path)
-        self.whRation = 2.5
+        self.whRation = 0.5
     def detect_image(self, input_image):
         try:
             source_image = input_image
