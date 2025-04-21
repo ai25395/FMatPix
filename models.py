@@ -24,3 +24,5 @@ class OcrModel:
         print('ocr model pred')
         res = batch_inference(img,self.model,self.processor)
         return res
+
+
