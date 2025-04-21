@@ -8,7 +8,7 @@ It's free,portable,offline,fast,accurate.<br>
 So don't hesitate share this with your friends who suffer from paid、user-unfriendly、slow OCR tools.<br>
 
 # How to get the .exe?
-从这个网址选择版本下载，注意版本说明里提供了迅雷网盘链接：https://github.com/ai25395/FMatPix/releases <br>
+从这个网址选择版本下载，注意版本说明里提供了网盘链接：https://github.com/ai25395/FMatPix/releases <br>
 Download the software FMatPix.exe from the release page: https://github.com/ai25395/FMatPix/releases <br>
 ### Don't forget to give me a star it's very important for me！别忘了给我点个星，这对我真的很重要！<br>
 
